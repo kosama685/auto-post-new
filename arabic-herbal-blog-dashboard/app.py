@@ -99,25 +99,152 @@ except Exception as e:
 
 try:
     with st.sidebar:
-        st.header("Target website")
-        st.success("Posting target: Blogger / Blogspot")
-        st.write("Set `BLOGGER_BLOG_ID` and authorize Google OAuth before publishing.")
+        st.header("🌿 Dynamic Options")
+        
+        # Source Type
+        source_type = st.selectbox(
+            "Source Type",
+            ["both", "rss", "currents_api"],
+            index=0,
+            help="Choose RSS feeds, Currents API, or both"
+        )
+        
+        # Language
+        language = st.selectbox(
+            "Language",
+            ["ar", "en"],
+            index=0,
+            help="Arabic or English"
+        )
+        
+        # Country
+        country_options = ["", "sa", "us", "ae", "eg", "bh", "kw", "om", "qa"]
+        country_labels = ["All", "Saudi Arabia", "United States", "UAE", "Egypt", "Bahrain", "Kuwait", "Oman", "Qatar"]
+        country = st.selectbox(
+            "Country",
+            country_options,
+            index=0,
+            format_func=lambda x: dict(zip(country_options, country_labels)).get(x, x),
+            help="Filter by country"
+        )
+        
+        # Category
+        category = st.selectbox(
+            "Category",
+            ["health", "general", "science", "technology", "sports"],
+            index=0,
+            help="News category"
+        )
+        
+        # AI Model
+        ai_model = st.selectbox(
+            "AI Enhancement Model",
+            ["openai", "gemini"],
+            index=0,
+            help="Choose AI model for content enhancement"
+        )
+        
+        # History TTL
+        history_ttl = st.slider(
+            "History TTL (days)",
+            min_value=1,
+            max_value=30,
+            value=7,
+            help="Skip articles seen within this many days"
+        )
+        
         st.divider()
         st.header("Actions")
-        if st.button("Authorize Blogger OAuth"):
+        
+        # Fetch Now
+        if st.button("🚀 Fetch Now", use_container_width=True):
+            with st.spinner("Fetching articles..."):
+                try:
+                    articles = fetch_articles(
+                        source_type=source_type,
+                        language=language,
+                        country=country,
+                        category=category,
+                        limit_per_source=10
+                    )
+                    st.session_state["fetched_articles"] = articles
+                    st.success(f"Fetched {len(articles)} articles")
+                except Exception as exc:
+                    st.error(f"Fetch failed: {str(exc)}")
+        
+        # Clear History
+        if st.button("🗑️ Clear Seen History", use_container_width=True):
             try:
-                authorize_blogger()
-                st.success("Blogger OAuth completed and token saved.")
+                storage.clear_history()
+                st.success("History cleared")
             except Exception as exc:
-                st.error(str(exc))
+                st.error(f"Clear failed: {str(exc)}")
+        
+        # Post Now
+        if st.button("📤 Post Now", use_container_width=True):
+            if "generated_post" in st.session_state:
+                try:
+                    result = pipeline.publish_post(st.session_state["generated_post"], as_draft=settings.blogger_post_as_draft)
+                    storage.save_post(st.session_state["generated_post"], result)
+                    if result.success:
+                        st.success(f"Posted: {result.url}")
+                    else:
+                        st.error(f"Post failed: {result.error}")
+                except Exception as exc:
+                    st.error(f"Post failed: {str(exc)}")
+        if st.button("Fetch latest articles"):
+            with st.spinner("Fetching configured source websites..."):
+                articles = fetch_articles(
+                    source_type=source_type,
+                    language=language,
+                    country=country,
+                    category=category,
+                    limit_per_source=limit
+                )
+            st.session_state["articles"] = articles
+            st.success(f"Fetched {len(articles)} articles.")
+
+        articles = st.session_state.get("articles", [])
+        if articles:
+            table = [
+                {
+                    "title": a.title,
+                    "source": a.source_name,
+                    "url": a.source_url,
+                    "published": a.normalized_publish_date(),
+                }
+                for a in articles
+            ]
+            st.dataframe(pd.DataFrame(table), use_container_width=True)
+            selected_idx = st.selectbox("Select article to inspect", list(range(len(articles))), format_func=lambda i: articles[i].title)
+            selected = articles[selected_idx]
+            st.markdown(f"<div class='rtl'><h3>{selected.title}</h3><p>{selected.summary}</p></div>", unsafe_allow_html=True)
+            st.link_button("Open source", selected.source_url)
+            
+            # AI Enhancement Preview
+            if st.button("🤖 Enhance with AI"):
+                with st.spinner("Enhancing content..."):
+                    try:
+                        enhanced_html = pipeline.rewriter.rewrite(selected, ai_model=ai_model)
+                        st.session_state["enhanced_preview"] = enhanced_html, ai_model=ai_model
+                        st.success("Enhanced!")
+                    except Exception as exc:
+                        st.error(f"Enhancement failed: {str(exc)}")
+            
+            if "enhanced_preview" in st.session_state:
+                st.subheader("Enhanced Preview")
+                st.components.v1.html(st.session_state["enhanced_preview"], height=400, scrolling=True)
+            st.write(f"Fetched: {last_fetch[0]['item_count']}")
+        else:
+            st.write("No fetches yet")
 
     tabs = st.tabs(["Settings", "Sources", "Fetch & Preview", "Generate & Publish", "History", "Logs"])
 
     with tabs[0]:
         st.subheader("API keys and publishing settings")
         with st.form("settings_form"):
-            openai_key = st.text_input("OPENAI_API_KEY", value=settings.openai_api_key, type="password")
-            openai_model = st.text_input("OPENAI_MODEL", value=settings.openai_model)
+        gemini_key = st.text_input("GEMINI_API_KEY", value=settings.gemini_api_key, type="password")
+        currents_key = st.text_input("CURRENTS_API_KEY", value=settings.currents_api_key, type="password")
             newsapi_key = st.text_input("NEWSAPI_KEY optional", value=settings.newsapi_key, type="password")
             blogger_blog_id = st.text_input("BLOGGER_BLOG_ID", value=settings.blogger_blog_id)
             google_client_secret_file = st.text_input("GOOGLE_CLIENT_SECRET_FILE", value=settings.google_client_secret_file)
@@ -134,7 +261,20 @@ try:
                 write_env(
                     {
                         "OPENAI_API_KEY": openai_key,
-                        "OPENAI_MODEL": openai_model,
+                        "OPENAI_MODEL": ope
+                    limit=int(run_limit),
+                    publish=full_publish,
+                    as_draft=settings.blogger_post_as_draft,
+                    source_type=source_type,
+                    language=language,
+                    country=country,
+                    category=category,
+                    history_ttl_days=history_ttl,
+                    ai_model=ai_model
+                
+                        "GEMINI_API_KEY": gemini_key,
+                        "GEMINI_MODEL": gemini_model,
+                        "CURRENTS_API_KEY": currents_key,
                         "NEWSAPI_KEY": newsapi_key,
                         "BLOGGER_BLOG_ID": blogger_blog_id,
                         "GOOGLE_CLIENT_SECRET_FILE": google_client_secret_file,

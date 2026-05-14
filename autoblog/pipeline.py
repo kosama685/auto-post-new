@@ -51,8 +51,8 @@ class BlogPipeline:
         logger.info("Fetched %s new articles", len(new_articles))
         return new_articles
 
-    def generate_post(self, article: SourceArticle) -> GeneratedPost:
-        html = self.rewriter.rewrite(article)
+    def generate_post(self, article: SourceArticle, ai_model: str = "openai") -> GeneratedPost:
+        html = self.rewriter.rewrite(article, ai_model=ai_model)
         image_url = get_featured_image_url(article.title, article.image_url)
         post = finalize_post(article, html, image_url=image_url)
         ok, reason = has_minimum_quality(post.html)
@@ -76,6 +76,7 @@ class BlogPipeline:
         country: str = "",
         category: str = "health",
         history_ttl_days: int | None = None,
+        ai_model: str = "openai",
     ) -> dict:
         limit = limit or self.settings.max_posts_per_run
         articles = self.fetch_new_articles(
@@ -92,7 +93,7 @@ class BlogPipeline:
 
         for article in selected:
             try:
-                post = self.generate_post(article)
+                post = self.generate_post(article, ai_model=ai_model)
                 generated.append(post)
                 result = PublishResult(success=False, platform="blogger", error="preview_only")
                 if publish:

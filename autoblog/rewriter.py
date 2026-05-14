@@ -75,9 +75,13 @@ def fallback_rewrite(article: SourceArticle) -> str:
 class Rewriter:
     def __init__(self) -> None:
         self.settings = get_settings()
-        self.client = None
+        self.openai_client = None
+        self.gemini_model = None
         if self.settings.openai_api_key:
-            self.client = self._make_openai_client()
+            self.openai_client = self._make_openai_client()
+        if GEMINI_AVAILABLE and self.settings.gemini_api_key:
+            genai.configure(api_key=self.settings.gemini_api_key)
+            self.gemini_model = genai.GenerativeModel('gemini-1.5-flash')
 
     def _make_openai_client(self) -> OpenAI:
         """Create an OpenAI client while avoiding the httpx>=0.28 proxies keyword issue."""
@@ -93,9 +97,9 @@ class Rewriter:
             )
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=12))
-    def rewrite(self, article: SourceArticle) -> str:
-        if not self.settings.enable_ai_rewrite or not self.client:
-            logger.warning("OpenAI rewrite disabled or missing key; using fallback rewrite.")
+    def rewrite(self, article: SourceArticle, ai_model: str = "openai") -> str:
+        if not self.settings.enable_ai_rewrite:
+            logger.warning("AI rewrite disabled; using fallback rewrite.")
             return fallback_rewrite(article)
 
         text = clean_text(article.body_text)
@@ -104,6 +108,16 @@ class Rewriter:
             return fallback_rewrite(article)
 
         keywords = ", ".join(load_sources().get("keywords", [])[:8])
+
+        if ai_model == "gemini" and self.gemini_model:
+            return self._rewrite_with_gemini(article, keywords, text)
+        elif ai_model == "openai" and self.openai_client:
+            return self._rewrite_with_openai(article, keywords, text)
+        else:
+            logger.warning("AI model %s not available; using fallback rewrite.", ai_model)
+            return fallback_rewrite(article)
+
+    def _rewrite_with_openai(self, article: SourceArticle, keywords: str, text: str) -> str:
         prompt = USER_TEMPLATE.format(
             keywords=keywords,
             title=article.title,
@@ -111,7 +125,7 @@ class Rewriter:
             source_url=article.source_url,
             text=text[:7000],
         )
-        response = self.client.chat.completions.create(
+        response = self.openai_client.chat.completions.create(
             model=self.settings.openai_model,
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
@@ -123,3 +137,33 @@ class Rewriter:
         if not html.strip():
             return fallback_rewrite(article)
         return html.strip()
+
+    def _rewrite_with_gemini(self, article: SourceArticle, keywords: str, text: str) -> str:
+        prompt = f"""Rewrite this health news article in a clear, engaging style for a general audience. Keep the facts accurate. Output in Arabic.
+
+Requirements:
+- Start with an introduction like: في هذا المقال نستعرض...
+- Organize with H2 and H3 headings.
+- Include a safety and precautions section.
+- End with a short conclusion.
+- Add 3 common questions in FAQ format.
+- Use keywords naturally: {keywords}
+- Keep content around 700-1000 words if source allows.
+- Do not copy the original text verbatim. Rewrite completely.
+- Ensure medical safety: no absolute claims, consult doctor disclaimer.
+
+Title: {article.title}
+Source: {article.source_name}
+Source URL: {article.source_url}
+Content:
+{text[:7000]}
+"""
+        try:
+            response = self.gemini_model.generate_content(prompt)
+            html = response.text.strip()
+            if not html:
+                return fallback_rewrite(article)
+            return html
+        except Exception as exc:
+            logger.warning("Gemini rewrite failed: %s", exc)
+            return fallback_rewrite(article)

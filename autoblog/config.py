@@ -63,10 +63,8 @@ class Settings:
     newsapi_category: str = _str("NEWSAPI_CATEGORY", "health")
     newsapi_page_size: int = _int("NEWSAPI_PAGE_SIZE", 10)
 
-    currents_api_key: str = _str("CURRENTS_API_KEY")
-    currents_api_language: str = _str("CURRENTS_API_LANGUAGE", "ar")
-    currents_api_country: str = _str("CURRENTS_API_COUNTRY", "")
-    currents_api_category: str = _str("CURRENTS_API_CATEGORY", "health")
+    gemini_api_key: str = _str("GEMINI_API_KEY")
+    gemini_model: str = _str("GEMINI_MODEL", "gemini-1.5-flash")
 
     post_interval_hours: int = _int("POST_INTERVAL_HOURS", 4)
     max_posts_per_run: int = _int("MAX_POSTS_PER_RUN", 2)
