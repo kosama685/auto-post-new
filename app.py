@@ -5,7 +5,6 @@ import logging
 import os
 import re
 import sqlite3
-import traceback
 from datetime import datetime, timedelta
 from pathlib import Path
 from threading import Lock
@@ -302,7 +301,7 @@ def fetch_rss_feed(feed_url: str, feed_name: str) -> list[dict]:
     articles = []
     try:
         data = feedparser.parse(feed_url)
-    except Exception as exc:
+    except Exception:
         LOGGER.exception("RSS parse failure for %s", feed_url)
         return []
 
@@ -339,9 +338,9 @@ def discover_who_emro_feeds(page_url: str) -> list[dict]:
         response = requests.get(page_url, timeout=15)
         response.raise_for_status()
         html = response.text
-        candidates = set(re.findall(r'href=["\']([^"\']+\.(?:xml|rss)(?:\?[^"\']*)?)["\']', html, re.I))
-        candidates.update(re.findall(r'<link[^>]+href=["\']([^"\']+)["\'][^>]+type=["\']application/rss\+xml["\']', html, re.I))
-        urls: list[str] = []
+        candidates = set(re.findall(r'href=["']([^"']+\.(?:xml|rss)(?:\?[^"']*)?)["']', html, re.I))
+        candidates.update(re.findall(r'<link[^>]+href=["']([^"']+)["'][^>]+type=["']application/rss\+xml["']', html, re.I))
+        urls = []
         for candidate in candidates:
             if not candidate.startswith("http"):
                 candidate = requests.compat.urljoin(page_url, candidate)
@@ -353,7 +352,7 @@ def discover_who_emro_feeds(page_url: str) -> list[dict]:
 
 
 def fetch_rss_sources(config: dict) -> list[dict]:
-    articles: list[dict] = []
+    articles = []
     for feed in config.get("rss_feeds", []):
         if not feed.get("enabled", True):
             continue
@@ -399,7 +398,7 @@ def fetch_currents_api(language: str, country: str, category: str) -> list[dict]
                     "content": item.get("description", ""),
                     "image": item.get("image"),
                     "source": item.get("source", {}).get("name", "Currents API") if isinstance(item.get("source"), dict) else item.get("source", "Currents API"),
-                    "published": item.get("published"),
+                    "published": item.get("published", ""),
                 }
             )
         LOGGER.info("Currents returned %d articles", len(articles))
@@ -444,7 +443,7 @@ def fetch_google_cse(query: str, limit: int = 10) -> list[dict]:
 def fetch_deep_search(language: str, config: dict, target_count: int = 10) -> list[dict]:
     query = "أخبار الصحة" if language == "ar" else f"latest health news {datetime.utcnow().date().isoformat()}"
     searx_instance = config.get("searx_instance", DEFAULT_SEARX)
-    articles: list[dict] = []
+    articles = []
     try:
         response = requests.get(searx_instance, params={"q": query, "format": "json"}, timeout=20)
         response.raise_for_status()
@@ -517,18 +516,33 @@ def enhance_article(article: dict, mode: str, target_language: str) -> str:
     if mode == "Summary":
         prompt = (
             f"Summarize the following health news article in 2-3 sentences in {target_language}. "
-            f"Keep the wording clear and professional.\n\nArticle:\n{source_text}\n\nSource URL: {article.get('url')}"
+            f"Keep the wording clear and professional.
+
+Article:
+{source_text}
+
+Source URL: {article.get('url')}"
         )
     elif mode == "Rewrite":
         prompt = (
             f"Rewrite the following health news text into an engaging, SEO-friendly blog post in {target_language}. "
             "Keep the facts, add a professional tone, and preserve the meaning. "
-            f"Include a short introduction, body paragraphs, and a source note at the end.\n\nArticle:\n{source_text}\n\nSource URL: {article.get('url')}"
+            f"Include a short introduction, body paragraphs, and a source note at the end.
+
+Article:
+{source_text}
+
+Source URL: {article.get('url')}"
         )
     else:
         prompt = (
             f"Translate the following health news text into {target_language}. "
-            "Keep the meaning accurate and use natural language.\n\nArticle:\n{source_text}\n\nSource URL: {article.get('url')}"
+            "Keep the meaning accurate and use natural language.
+
+Article:
+{source_text}
+
+Source URL: {article.get('url')}"
         )
 
     try:
@@ -542,12 +556,12 @@ def build_post_html(article: dict, enhanced_body: str) -> str:
     parts = [f"<h2>{article.get('title', 'Health Article')}</h2>"]
     if article.get("image"):
         parts.append(
-            f"<div><img src=\"{article['image']}\" alt=\"{article['title']}\" style=\"max-width:100%;height:auto;\"/></div>"
+            f"<div><img src="{article['image']}" alt="{article['title']}" style="max-width:100%;height:auto;"/></div>"
         )
     parts.append(f"<p><em>Source: {article.get('source', 'Unknown')}</em></p>")
     parts.append(f"<div>{enhanced_body}</div>")
     parts.append(
-        f"<p><strong>Original source:</strong> <a href=\"{article.get('url')}\" target=\"_blank\">{article.get('url')}</a></p>"
+        f"<p><strong>Original source:</strong> <a href="{article.get('url')}" target="_blank">{article.get('url')}</a></p>"
     )
     return "".join(parts)
 
@@ -609,7 +623,7 @@ def run_cycle(
     min_fallback: int,
 ) -> dict:
     config = load_sources_config()
-    articles: list[dict] = []
+    articles = []
     if "RSS Feeds" in source_types:
         articles.extend(fetch_rss_sources(config))
     if "Currents API" in source_types:
@@ -639,9 +653,9 @@ def run_cycle(
             LOGGER.info("Published article %s", article["url"])
             results.append({"article": article, "published": True, "post_url": blog_result.get("url")})
             published_count += 1
-        except Exception as exc:
+        except Exception:
             LOGGER.exception("Failed to publish article %s", article.get("url"))
-            results.append({"article": article, "published": False, "error": str(exc)})
+            results.append({"article": article, "published": False, "error": traceback.format_exc()})
         finally:
             mark_url_seen(article["url"], article.get("title", ""), article.get("source", ""))
 
@@ -949,7 +963,8 @@ def main() -> None:
         if LOG_FILE.exists():
             log_text = LOG_FILE.read_text(encoding="utf-8")
             lines = log_text.splitlines()[-200:]
-            st.code("\n".join(lines))
+            st.code("
+".join(lines))
         else:
             st.info("Log file not found yet.")
 
