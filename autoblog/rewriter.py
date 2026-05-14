@@ -4,6 +4,13 @@ from openai import OpenAI
 from tenacity import retry, stop_after_attempt, wait_exponential
 import httpx
 
+try:
+    import google.generativeai as genai
+    GEMINI_AVAILABLE = True
+except ImportError:
+    genai = None
+    GEMINI_AVAILABLE = False
+
 from .config import get_settings, load_sources
 from .logger_setup import logger
 from .models import SourceArticle

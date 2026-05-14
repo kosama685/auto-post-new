@@ -1,29 +1,64 @@
 {
-  "rss_feeds": [
+  "sources": [
     {
+      "id": "cdc_travel_notices",
       "name": "CDC Travel Notices",
-      "url": "https://wwwnc.cdc.gov/travel/rss/notices.xml",
-      "enabled": true
+      "type": "rss",
+      "enabled": true,
+      "url": "https://wwwnc.cdc.gov/travel/rss/notices.xml"
     },
     {
-      "name": "CDC Online Newsroom",
-      "url": "https://tools.cdc.gov/api/v2/resources/media/132608.rss",
-      "enabled": true
+      "id": "cdc_newsroom",
+      "name": "CDC Newsroom",
+      "type": "rss",
+      "enabled": true,
+      "url": "https://tools.cdc.gov/api/v2/resources/media/132608.rss"
     },
     {
-      "name": "WHO EMRO RSS directory",
-      "url": "https://www.emro.who.int/rss-feeds.html",
-      "enabled": true
+      "id": "who_emro",
+      "name": "WHO EMRO RSS",
+      "type": "rss",
+      "enabled": true,
+      "url": "https://www.emro.who.int/rss-feeds.html"
     },
     {
+      "id": "saudi_moh_news",
       "name": "Saudi MOH News",
-      "url": "https://www.moh.gov.sa/_layouts/15/moh/RssGenerator.aspx?WebSiteUrl=/Ministry/MediaCenter/News/&ListUrl=/Ministry/MediaCenter/News/Pages/&ViewName=RSSView&RssTitle=&RssDescription=&DescriptionField=BriefDesc",
-      "enabled": true
+      "type": "rss",
+      "enabled": true,
+      "url": "https://www.moh.gov.sa/_layouts/15/moh/RssGenerator.aspx?WebSiteUrl=/Ministry/MediaCenter/News/&ListUrl=/Ministry/MediaCenter/News/Pages/&ViewName=RSSView&RssTitle=&RssDescription=&DescriptionField=BriefDesc"
     },
     {
+      "id": "saudi_moh_tips",
       "name": "Saudi MOH Health Tips",
-      "url": "https://www.moh.gov.sa/_layouts/15/moh/RssGenerator.aspx?WebSiteUrl=/HealthAwareness/EducationalContent/HealthTips/&ListUrl=/HealthAwareness/EducationalContent/HealthTips/Pages/&ViewName=RSSView&RssTitle=&RssDescription=BriefDesc",
-      "enabled": true
+      "type": "rss",
+      "enabled": true,
+      "url": "https://www.moh.gov.sa/_layouts/15/moh/RssGenerator.aspx?WebSiteUrl=/HealthAwareness/EducationalContent/HealthTips/&ListUrl=/HealthAwareness/EducationalContent/HealthTips/Pages/&ViewName=RSSView&RssTitle=&RssDescription=BriefDesc"
+    },
+    {
+      "id": "bahrain_moh",
+      "name": "Bahrain MOH Health Info",
+      "type": "rss",
+      "enabled": true,
+      "url": "https://www.moh.gov.bh/HealthInfo/RSS"
+    },
+    {
+      "id": "saudi_sfda",
+      "name": "Saudi SFDA Health News",
+      "type": "rss",
+      "enabled": true,
+      "url": "https://www.sfda.gov.sa/ar/news.xml?tags=1"
+    },
+    {
+      "id": "currents_api",
+      "name": "Currents API",
+      "type": "currents_api",
+      "enabled": true,
+      "api_key_env": "CURRENTS_API_KEY",
+      "language": "ar",
+      "country": "sa",
+      "category": "health",
+      "limit": 10
     }
   ],
   "keywords": [
@@ -38,5 +73,10 @@
     "شفاء نهائي",
     "علاج مضمون",
     "بدون طبيب"
-  ]
+  ],
+  "default": {
+    "language": "ar",
+    "country": "sa",
+    "category": "health"
+  }
 }
