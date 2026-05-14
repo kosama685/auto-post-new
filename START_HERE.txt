@@ -1,0 +1,31 @@
+Arabic Herbal Health Blog Dashboard - Start Here
+
+1) Install:
+   python -m venv .venv
+   source .venv/bin/activate
+   pip install -r requirements.txt
+
+2) Configure:
+   cp .env.example .env
+   streamlit run app.py
+
+3) In the dashboard, set:
+   - OPENAI_API_KEY
+   - BLOGGER_BLOG_ID
+   - GOOGLE_CLIENT_SECRET_FILE
+   - Optional NEWSAPI_KEY
+   - RSS source URLs and Arabic keywords
+
+4) Authorize Blogger once:
+   python main.py authorize-blogger
+
+5) Posting target:
+   The project posts to Blogger / Blogspot by default.
+   It starts in draft mode unless you set BLOGGER_POST_AS_DRAFT=false.
+
+6) Source websites:
+   Configure these in data/sources.json or the dashboard Sources tab.
+   Defaults include WebTeb Health, Al Jazeera Health, and Al-Madina Health RSS feeds.
+
+7) Safer health workflow:
+   Keep draft mode enabled, review every article in Blogger, then publish manually.

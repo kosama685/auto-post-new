@@ -1,0 +1,32 @@
+{
+  "rss_feeds": [
+    {
+      "name": "WebTeb Health",
+      "url": "https://www.webteb.com/rss/health",
+      "enabled": true
+    },
+    {
+      "name": "Al Jazeera Health",
+      "url": "https://www.aljazeera.net/xml/rss/health",
+      "enabled": true
+    },
+    {
+      "name": "Al-Madina Health",
+      "url": "https://www.al-madina.com/rss/health",
+      "enabled": true
+    }
+  ],
+  "keywords": [
+    "علاج بالأعشاب",
+    "فوائد صحية",
+    "طب بديل",
+    "الصحة في السعودية",
+    "العناية الطبيعية"
+  ],
+  "blocked_keywords": [
+    "معجزة",
+    "شفاء نهائي",
+    "علاج مضمون",
+    "بدون طبيب"
+  ]
+}
