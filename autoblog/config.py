@@ -6,7 +6,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-import yaml
+try:
+    import yaml
+except ImportError:
+    yaml = None
 from dotenv import load_dotenv
 
 ROOT_DIR = Path(__file__).resolve().parents[1]
@@ -153,6 +156,11 @@ def _write_json(path: Path, data: dict[str, Any]) -> None:
 
 def load_sources() -> dict[str, Any]:
     if SOURCES_FILE_YAML.exists():
+        if yaml is None:
+            raise RuntimeError(
+                "PyYAML is not installed, but sources.yaml was found. "
+                "Install pyyaml or remove sources.yaml to continue."
+            )
         return _read_yaml(SOURCES_FILE_YAML)
     if SOURCES_FILE_JSON.exists():
         return _read_json(SOURCES_FILE_JSON)
