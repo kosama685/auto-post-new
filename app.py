@@ -338,8 +338,8 @@ def discover_who_emro_feeds(page_url: str) -> list[dict]:
         response = requests.get(page_url, timeout=15)
         response.raise_for_status()
         html = response.text
-        candidates = set(re.findall(r'href=["']([^"']+\.(?:xml|rss)(?:\?[^"']*)?)["']', html, re.I))
-        candidates.update(re.findall(r'<link[^>]+href=["']([^"']+)["'][^>]+type=["']application/rss\+xml["']', html, re.I))
+        candidates = set(re.findall(r"href=[\"']([^\"']+\.(?:xml|rss)(?:\?[^\"']*)?)[\"']", html, re.I))
+        candidates.update(re.findall(r"<link[^>]+href=[\"']([^\"']+)[\"'][^>]+type=[\"']application/rss\+xml[\"']", html, re.I))
         urls = []
         for candidate in candidates:
             if not candidate.startswith("http"):
@@ -514,36 +514,37 @@ def enhance_article(article: dict, mode: str, target_language: str) -> str:
         return source_text
 
     if mode == "Summary":
-        prompt = (
-            f"Summarize the following health news article in 2-3 sentences in {target_language}. "
-            f"Keep the wording clear and professional.
+        prompt = f"""Summarize the following health news article in 2-3 sentences in {target_language}. """
+        prompt += f"""
+
+Keep the wording clear and professional.
 
 Article:
 {source_text}
 
-Source URL: {article.get('url')}"
-        )
+Source URL: {article.get('url')}"""
     elif mode == "Rewrite":
-        prompt = (
-            f"Rewrite the following health news text into an engaging, SEO-friendly blog post in {target_language}. "
-            "Keep the facts, add a professional tone, and preserve the meaning. "
-            f"Include a short introduction, body paragraphs, and a source note at the end.
+        prompt = f"""Rewrite the following health news text into an engaging, SEO-friendly blog post in {target_language}. """
+        prompt += f"""
+
+Keep the facts, add a professional tone, and preserve the meaning.
+
+Include a short introduction, body paragraphs, and a source note at the end.
 
 Article:
 {source_text}
 
-Source URL: {article.get('url')}"
-        )
+Source URL: {article.get('url')}"""
     else:
-        prompt = (
-            f"Translate the following health news text into {target_language}. "
-            "Keep the meaning accurate and use natural language.
+        prompt = f"""Translate the following health news text into {target_language}. """
+        prompt += f"""
+
+Keep the meaning accurate and use natural language.
 
 Article:
 {source_text}
 
-Source URL: {article.get('url')}"
-        )
+Source URL: {article.get('url')}"""
 
     try:
         return gemini_generate(prompt)
@@ -556,12 +557,12 @@ def build_post_html(article: dict, enhanced_body: str) -> str:
     parts = [f"<h2>{article.get('title', 'Health Article')}</h2>"]
     if article.get("image"):
         parts.append(
-            f"<div><img src="{article['image']}" alt="{article['title']}" style="max-width:100%;height:auto;"/></div>"
+            f'<div><img src="{article["image"]}" alt="{article["title"]}" style="max-width:100%;height:auto;"/></div>'
         )
     parts.append(f"<p><em>Source: {article.get('source', 'Unknown')}</em></p>")
     parts.append(f"<div>{enhanced_body}</div>")
     parts.append(
-        f"<p><strong>Original source:</strong> <a href="{article.get('url')}" target="_blank">{article.get('url')}</a></p>"
+        f'<p><strong>Original source:</strong> <a href="{article.get("url")}" target="_blank">{article.get("url")}</a></p>'
     )
     return "".join(parts)
 
@@ -963,8 +964,7 @@ def main() -> None:
         if LOG_FILE.exists():
             log_text = LOG_FILE.read_text(encoding="utf-8")
             lines = log_text.splitlines()[-200:]
-            st.code("
-".join(lines))
+            st.code("\n".join(lines))
         else:
             st.info("Log file not found yet.")
 
