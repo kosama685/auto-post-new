@@ -25,7 +25,7 @@ Arabic Herbal Health Blog Dashboard - Start Here
 
 6) Source websites:
    Configure these in data/sources.json or the dashboard Sources tab.
-   Defaults include WebTeb Health, Al Jazeera Health, and Al-Madina Health RSS feeds.
+   Defaults include CDC Travel Notices, CDC Online Newsroom, and Saudi MOH RSS feeds.
 
 7) Safer health workflow:
    Keep draft mode enabled, review every article in Blogger, then publish manually.

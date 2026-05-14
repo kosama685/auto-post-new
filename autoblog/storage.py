@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import sqlite3
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Iterator
 
@@ -59,40 +59,104 @@ class Storage:
                     created_at TEXT NOT NULL,
                     published_at TEXT
                 );
+                CREATE TABLE IF NOT EXISTS fetch_runs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    run_at TEXT NOT NULL,
+                    source_id TEXT,
+                    source_name TEXT,
+                    source_type TEXT,
+                    source_url TEXT,
+                    success INTEGER NOT NULL,
+                    item_count INTEGER NOT NULL,
+                    error TEXT
+                );
                 CREATE INDEX IF NOT EXISTS idx_posts_status ON posts(status);
                 CREATE INDEX IF NOT EXISTS idx_articles_status ON articles(status);
+                CREATE INDEX IF NOT EXISTS idx_fetch_runs_source ON fetch_runs(source_id, source_type);
                 """
             )
 
-    def article_exists(self, article: SourceArticle) -> bool:
+    def article_seen_recently(self, article: SourceArticle, ttl_days: int | None = None) -> bool:
+        ttl_days = ttl_days if ttl_days is not None else self.settings.history_ttl_days
+        threshold = datetime.now(timezone.utc) - timedelta(days=ttl_days)
         h = source_hash(article.source_url, article.title)
         with self.connect() as conn:
             row = conn.execute(
-                "SELECT 1 FROM articles WHERE source_hash = ? OR source_url = ? LIMIT 1",
-                (h, article.source_url),
+                """
+                SELECT 1 FROM articles
+                WHERE (source_hash = ? OR source_url = ?)
+                  AND fetched_at >= ?
+                LIMIT 1
+                """,
+                (h, article.source_url, threshold.isoformat()),
             ).fetchone()
             return row is not None
 
-    def save_article(self, article: SourceArticle, status: str = "fetched") -> None:
-        h = source_hash(article.source_url, article.title)
+    def article_exists(self, article: SourceArticle, ttl_days: int | None = None) -> bool:
+        return self.article_seen_recently(article, ttl_days=ttl_days)
+
+    def log_fetch_run(
+        self,
+        source_id: str | None,
+        source_name: str,
+        source_type: str,
+        source_url: str,
+        success: bool,
+        item_count: int,
+        error: str | None = None,
+    ) -> None:
         with self.connect() as conn:
             conn.execute(
                 """
-                INSERT OR IGNORE INTO articles
-                (title, source_url, source_hash, source_name, author, published_at, fetched_at, status)
+                INSERT INTO fetch_runs
+                (run_at, source_id, source_name, source_type, source_url, success, item_count, error)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
+                    datetime.now(timezone.utc).isoformat(),
+                    source_id,
+                    source_name,
+                    source_type,
+                    source_url,
+                    1 if success else 0,
+                    item_count,
+                    error,
+                ),
+            )
+
+    def save_article(self, article: SourceArticle, status: str = "fetched") -> None:
+        h = source_hash(article.source_url, article.title)
+        fetched_at = datetime.now(timezone.utc).isoformat()
+        with self.connect() as conn:
+            conn.execute(
+                """
+                INSERT OR REPLACE INTO articles
+                (id, title, source_url, source_hash, source_name, author, published_at, fetched_at, status)
+                VALUES (
+                    COALESCE(
+                        (SELECT id FROM articles WHERE source_url = ? OR source_hash = ? LIMIT 1),
+                        NULL
+                    ),
+                    ?, ?, ?, ?, ?, ?, ?, ?
+                )
+                """,
+                (
+                    article.source_url,
+                    h,
                     article.title,
                     article.source_url,
                     h,
                     article.source_name,
                     article.author,
                     article.normalized_publish_date(),
-                    datetime.now(timezone.utc).isoformat(),
+                    fetched_at,
                     status,
                 ),
             )
+
+    def clear_history(self) -> None:
+        with self.connect() as conn:
+            conn.execute("DELETE FROM articles")
 
     def save_post(self, post: GeneratedPost, result: PublishResult | None = None) -> None:
         result = result or PublishResult(success=False, platform="blogger", error="not_published")
@@ -129,6 +193,23 @@ class Storage:
                     (limit,),
                 ).fetchall()
             )
+
+    def recent_fetch_runs(self, limit: int = 50) -> list[sqlite3.Row]:
+        with self.connect() as conn:
+            return list(
+                conn.execute(
+                    "SELECT * FROM fetch_runs ORDER BY id DESC LIMIT ?",
+                    (limit,),
+                ).fetchall()
+            )
+
+    def fetch_summary(self) -> dict[str, int]:
+        with self.connect() as conn:
+            total_runs = conn.execute("SELECT COUNT(*) AS c FROM fetch_runs").fetchone()["c"]
+            successful = conn.execute("SELECT COUNT(*) AS c FROM fetch_runs WHERE success=1").fetchone()["c"]
+            failed = conn.execute("SELECT COUNT(*) AS c FROM fetch_runs WHERE success=0").fetchone()["c"]
+            sources = conn.execute("SELECT COUNT(DISTINCT source_id) AS c FROM fetch_runs").fetchone()["c"]
+        return {"fetch_runs": total_runs, "success": successful, "failed": failed, "sources": sources}
 
     def stats(self) -> dict[str, int]:
         with self.connect() as conn:

@@ -10,9 +10,10 @@ The default publishing target is **Blogger / Blogspot** through the Blogger API 
 
 Default source websites/feeds are configurable in the dashboard and in `data/sources.json`:
 
-- WebTeb Health RSS
-- Al Jazeera Health RSS
-- Al-Madina Health RSS
+- CDC Travel Notices RSS
+- CDC Online Newsroom RSS
+- Saudi MOH News RSS
+- Saudi MOH Health Tips RSS
 
 You may add or remove feeds from the dashboard.
 
@@ -83,10 +84,17 @@ Run this once to authorize Blogger:
 python main.py authorize-blogger
 ```
 
-### NewsAPI optional
-RSS feeds work without NewsAPI. NewsAPI adds more discovery.
+### NewsAPI and Currents API optional
+RSS feeds work without API discovery. News APIs add more discovery and a reliable fallback when RSS sources are stale.
 
 - `NEWSAPI_KEY`
+- `NEWSAPI_COUNTRY` (optional, e.g. `sa`)
+- `NEWSAPI_CATEGORY` (default: `health`)
+- `CURRENTS_API_KEY`
+- `CURRENTS_API_COUNTRY` (optional, e.g. `sa`)
+- `CURRENTS_API_CATEGORY` (default: `health`)
+
+If you want more reliable “deep search”, set `CURRENTS_API_KEY` and choose `category=health` for the Currents API.
 
 ### Cloudinary optional
 Used to host generated images if you want stable image URLs inside Blogger posts.

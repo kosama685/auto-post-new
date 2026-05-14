@@ -1,18 +1,28 @@
 {
   "rss_feeds": [
     {
-      "name": "WebTeb Health",
-      "url": "https://www.webteb.com/rss/health",
+      "name": "CDC Travel Notices",
+      "url": "https://wwwnc.cdc.gov/travel/rss/notices.xml",
       "enabled": true
     },
     {
-      "name": "Al Jazeera Health",
-      "url": "https://www.aljazeera.net/xml/rss/health",
+      "name": "CDC Online Newsroom",
+      "url": "https://tools.cdc.gov/api/v2/resources/media/132608.rss",
       "enabled": true
     },
     {
-      "name": "Al-Madina Health",
-      "url": "https://www.al-madina.com/rss/health",
+      "name": "WHO EMRO RSS directory",
+      "url": "https://www.emro.who.int/rss-feeds.html",
+      "enabled": true
+    },
+    {
+      "name": "Saudi MOH News",
+      "url": "https://www.moh.gov.sa/_layouts/15/moh/RssGenerator.aspx?WebSiteUrl=/Ministry/MediaCenter/News/&ListUrl=/Ministry/MediaCenter/News/Pages/&ViewName=RSSView&RssTitle=&RssDescription=&DescriptionField=BriefDesc",
+      "enabled": true
+    },
+    {
+      "name": "Saudi MOH Health Tips",
+      "url": "https://www.moh.gov.sa/_layouts/15/moh/RssGenerator.aspx?WebSiteUrl=/HealthAwareness/EducationalContent/HealthTips/&ListUrl=/HealthAwareness/EducationalContent/HealthTips/Pages/&ViewName=RSSView&RssTitle=&RssDescription=BriefDesc",
       "enabled": true
     }
   ],

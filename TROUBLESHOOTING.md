@@ -81,7 +81,7 @@ Visit `/app_debug` to see:
 ### If app loads but features fail:
 
 1. **Settings Tab Issues** → Check `.env` file and API keys
-2. **Fetch Articles Fails** → Check RSS feed URLs in `data/sources.json`
+2. **Fetch Articles Fails** → Check RSS feed URLs in `data/sources.json` and replace stale Arabic RSS feeds with official health feeds like CDC or Saudi MOH.
 3. **Publishing Fails** → Check Google OAuth configuration
 4. **Image Generation Fails** → Check Cloudinary API setup
 

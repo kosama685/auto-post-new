@@ -20,8 +20,23 @@ class BlogPipeline:
         self.storage = Storage()
         self.rewriter = Rewriter()
 
-    def fetch_new_articles(self, limit_per_source: int | None = None) -> list[SourceArticle]:
-        all_articles = fetch_articles(include_newsapi=True, limit_per_source=limit_per_source)
+    def fetch_new_articles(
+        self,
+        source_type: str = "both",
+        language: str = "ar",
+        country: str = "",
+        category: str = "health",
+        history_ttl_days: int | None = None,
+        limit_per_source: int | None = None,
+    ) -> list[SourceArticle]:
+        all_articles = fetch_articles(
+            source_type=source_type,
+            language=language,
+            country=country,
+            category=category,
+            limit_per_source=limit_per_source,
+            include_newsapi=False,
+        )
         sources = load_sources()
         blocked = sources.get("blocked_keywords", [])
         new_articles: list[SourceArticle] = []
@@ -29,7 +44,7 @@ class BlogPipeline:
             if contains_blocked_claims(article.title + " " + article.body_text, blocked):
                 logger.warning("Skipping unsafe/blocked article: %s", article.title)
                 continue
-            if self.storage.article_exists(article):
+            if self.storage.article_exists(article, ttl_days=history_ttl_days):
                 continue
             self.storage.save_article(article)
             new_articles.append(article)
@@ -51,9 +66,26 @@ class BlogPipeline:
         publisher = BloggerPublisher()
         return publisher.publish(post, as_draft=as_draft)
 
-    def run_once(self, limit: int | None = None, publish: bool = True, as_draft: bool | None = None) -> dict:
+    def run_once(
+        self,
+        limit: int | None = None,
+        publish: bool = True,
+        as_draft: bool | None = None,
+        source_type: str = "both",
+        language: str = "ar",
+        country: str = "",
+        category: str = "health",
+        history_ttl_days: int | None = None,
+    ) -> dict:
         limit = limit or self.settings.max_posts_per_run
-        articles = self.fetch_new_articles(limit_per_source=self.settings.fetch_limit_per_source)
+        articles = self.fetch_new_articles(
+            source_type=source_type,
+            language=language,
+            country=country,
+            category=category,
+            history_ttl_days=history_ttl_days,
+            limit_per_source=self.settings.fetch_limit_per_source,
+        )
         selected = articles[:limit]
         generated: list[GeneratedPost] = []
         results: list[PublishResult] = []
