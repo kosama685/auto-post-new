@@ -17,6 +17,9 @@ st.set_page_config(page_title="Arabic Herbal Blog Dashboard", page_icon="🌿", 
 st.markdown(
     """
 <style>
+@font-face {
+    font-display: swap;
+}
 .main .block-container {max-width: 1200px;}
 .metric-card {border:1px solid #ddd;border-radius:12px;padding:16px;background:#fff;}
 .rtl {direction: rtl; text-align: right;}

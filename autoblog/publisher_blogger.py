@@ -34,7 +34,12 @@ def authorize_blogger() -> Credentials:
                 "Download it from Google Cloud Console and set GOOGLE_CLIENT_SECRET_FILE."
             )
         flow = InstalledAppFlow.from_client_secrets_file(str(client_secret_path), SCOPES)
-        creds = flow.run_local_server(port=0)
+        try:
+            # Try to use local server (works on desktop)
+            creds = flow.run_local_server(port=0, open_browser=False)
+        except Exception:
+            # Fall back to console flow for Streamlit Cloud / headless environments
+            creds = flow.run_console()
 
     token_path.write_text(creds.to_json(), encoding="utf-8")
     return creds
