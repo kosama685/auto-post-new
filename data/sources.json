@@ -115,6 +115,7 @@
   "default": {
     "language": "ar",
     "country": "sa",
-    "category": "health"
+    "category": "health",
+    "deep_search_minimum": 0
   }
 }
