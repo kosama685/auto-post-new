@@ -316,7 +316,7 @@ def fetch_articles(
 ) -> list[SourceArticle]:
     settings = get_settings()
     limit = limit_per_source or settings.fetch_limit_per_source
-    deep_minimum = deep_search_minimum if deep_search_minimum is not None else get_default_fetch_parameters().get("deep_search_minimum", 5)
+    deep_minimum = deep_search_minimum if deep_search_minimum is not None else get_default_fetch_parameters().get("deep_search_minimum", 0)
     keywords = get_keywords() or ["health"]
     articles: list[SourceArticle] = []
 
@@ -339,7 +339,7 @@ def fetch_articles(
         articles.extend(fetch_from_newsapi(limit=limit))
 
     unique_articles = _normalize_articles(articles)
-    if len(unique_articles) < deep_minimum:
+    if len(unique_articles) < deep_minimum and deep_minimum > 0:
         fallback = _deep_search_fallback(len(unique_articles), deep_minimum, language, keywords, limit)
         unique_articles.extend(_normalize_articles(fallback))
 

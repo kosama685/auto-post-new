@@ -50,7 +50,7 @@ def get_default_fetch_parameters() -> dict[str, str]:
         "language": default.get("language", "ar"),
         "country": default.get("country", ""),
         "category": default.get("category", "health"),
-        "deep_search_minimum": default.get("deep_search_minimum", 5),
+        "deep_search_minimum": default.get("deep_search_minimum", 0),
         "searx_instance": default.get("searx_instance", "https://searx.be"),
     }
 
