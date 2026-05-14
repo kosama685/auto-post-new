@@ -243,8 +243,8 @@ try:
     with tabs[0]:
         st.subheader("API keys and publishing settings")
         with st.form("settings_form"):
-        gemini_key = st.text_input("GEMINI_API_KEY", value=settings.gemini_api_key, type="password")
-        currents_key = st.text_input("CURRENTS_API_KEY", value=settings.currents_api_key, type="password")
+            gemini_key = st.text_input("GEMINI_API_KEY", value=settings.gemini_api_key, type="password")
+            currents_key = st.text_input("CURRENTS_API_KEY", value=settings.currents_api_key, type="password")
             newsapi_key = st.text_input("NEWSAPI_KEY optional", value=settings.newsapi_key, type="password")
             blogger_blog_id = st.text_input("BLOGGER_BLOG_ID", value=settings.blogger_blog_id)
             google_client_secret_file = st.text_input("GOOGLE_CLIENT_SECRET_FILE", value=settings.google_client_secret_file)
@@ -261,17 +261,7 @@ try:
                 write_env(
                     {
                         "OPENAI_API_KEY": openai_key,
-                        "OPENAI_MODEL": ope
-                    limit=int(run_limit),
-                    publish=full_publish,
-                    as_draft=settings.blogger_post_as_draft,
-                    source_type=source_type,
-                    language=language,
-                    country=country,
-                    category=category,
-                    history_ttl_days=history_ttl,
-                    ai_model=ai_model
-                
+                        "OPENAI_MODEL": openai_model,
                         "GEMINI_API_KEY": gemini_key,
                         "GEMINI_MODEL": gemini_model,
                         "CURRENTS_API_KEY": currents_key,

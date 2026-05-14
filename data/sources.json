@@ -50,16 +50,54 @@
       "url": "https://www.sfda.gov.sa/ar/news.xml?tags=1"
     },
     {
-      "id": "currents_api",
-      "name": "Currents API",
-      "type": "currents_api",
+      "id": "cnn_arabic_health",
+      "name": "CNN Arabic Health & Science",
+      "type": "rss",
       "enabled": true,
-      "api_key_env": "CURRENTS_API_KEY",
-      "language": "ar",
-      "country": "sa",
-      "category": "health",
-      "limit": 10
-    }
+      "url": "https://arabic.cnn.com/rss/sections/science-and-health.rss"
+    },
+    {
+      "id": "sky_news_arabia_health",
+      "name": "Sky News Arabia Health",
+      "type": "rss",
+      "enabled": true,
+      "url": "https://www.skynewsarabia.com/rss/v1/section/health"
+    },
+    {
+      "id": "alarabiya_healthy_living",
+      "name": "Al Arabiya Healthy Living",
+      "type": "rss",
+      "enabled": true,
+      "url": "https://www.alarabiya.net/feed/rss/lifestyle/healthy-living"
+    },
+    {
+      "id": "asharq_health",
+      "name": "Asharq News Health",
+      "type": "rss",
+      "enabled": true,
+      "url": "https://asharq.com/rss/health"
+    },
+    {
+      "id": "bbc_arabic_world",
+      "name": "BBC Arabic World News",
+      "type": "rss",
+      "enabled": true,
+      "url": "https://www.bbc.com/arabic/index.xml"
+    },
+    {
+      "id": "youm7_medicine",
+      "name": "Youm7 Medicine & Health",
+      "type": "rss",
+      "enabled": true,
+      "url": "https://www.youm7.com/rss/Section?SectionID=245"
+    },
+    {
+      "id": "ksa_moh_official",
+      "name": "KSA Ministry of Health Official News",
+      "type": "rss",
+      "enabled": true,
+      "url": "https://www.moh.gov.sa/_layouts/15/listfeed.aspx?List=%7B5A0C8360-6F88-4F8A-A0A5-502C690E7F5A%7D"
+    },
   ],
   "keywords": [
     "علاج بالأعشاب",
