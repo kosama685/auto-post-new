@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from pathlib import Path
 
 import pandas as pd
@@ -12,7 +13,15 @@ from autoblog.pipeline import BlogPipeline
 from autoblog.publisher_blogger import authorize_blogger
 from autoblog.storage import Storage
 
-st.set_page_config(page_title="Arabic Herbal Blog Dashboard", page_icon="🌿", layout="wide")
+# Suppress verbose Streamlit logging
+logging.getLogger("streamlit").setLevel(logging.WARNING)
+
+st.set_page_config(
+    page_title="Arabic Herbal Blog Dashboard",
+    page_icon="🌿",
+    layout="wide",
+    initial_sidebar_state="expanded",
+)
 
 st.markdown(
     """
@@ -20,25 +29,38 @@ st.markdown(
 @font-face {
     font-display: swap;
 }
+html, body {
+    overflow-x: hidden;
+}
 .main .block-container {max-width: 1200px;}
 .metric-card {border:1px solid #ddd;border-radius:12px;padding:16px;background:#fff;}
 .rtl {direction: rtl; text-align: right;}
+/* Prevent layout shift during chunk loading */
+.stTabs {min-height: 500px;}
 </style>
 """,
     unsafe_allow_html=True,
 )
 
-settings = get_settings()
+try:
+    settings = get_settings()
+except Exception as e:
+    st.error(f"Failed to load settings: {str(e)}")
+    st.stop()
+
 st.title("🌿 Arabic Herbal Health Blog Dashboard")
 st.caption("Fetch Arabic health content, rewrite safely, optimize SEO, and publish to Blogger.")
 
-storage = Storage()
-stats = storage.stats()
-col1, col2, col3, col4 = st.columns(4)
-col1.metric("Fetched articles", stats["articles"])
-col2.metric("Saved posts", stats["posts"])
-col3.metric("Published", stats["published"])
-col4.metric("Draft/previews", stats["drafts"])
+try:
+    storage = Storage()
+    stats = storage.stats()
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Fetched articles", stats["articles"])
+    col2.metric("Saved posts", stats["posts"])
+    col3.metric("Published", stats["published"])
+    col4.metric("Draft/previews", stats["drafts"])
+except Exception as e:
+    st.warning(f"Could not load dashboard stats: {str(e)}")
 
 with st.sidebar:
     st.header("Target website")

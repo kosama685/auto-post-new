@@ -1,0 +1,28 @@
+[theme]
+primaryColor = "#2ecc71"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+font = "sans serif"
+
+[client]
+showErrorDetails = false
+toolbarMode = "minimal"
+maxMessageSize = 200
+
+[logger]
+level = "error"
+
+[server]
+headless = true
+runOnSave = true
+maxUploadSize = 200
+enableXsrfProtection = true
+enableCORS = false
+
+[browser]
+gatherUsageStats = false
+
+[ui]
+hideTopBar = false
+hideSidebarNav = false
