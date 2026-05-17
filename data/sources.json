@@ -1,103 +1,75 @@
 {
-  "sources": [
+  "rss_feeds": [
     {
-      "id": "cdc_travel_notices",
       "name": "CDC Travel Notices",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://wwwnc.cdc.gov/travel/rss/notices.xml"
+      "url": "https://wwwnc.cdc.gov/travel/rss/notices.xml",
+      "enabled": true
     },
     {
-      "id": "cdc_newsroom",
       "name": "CDC Newsroom",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://tools.cdc.gov/api/v2/resources/media/132608.rss"
+      "url": "https://tools.cdc.gov/api/v2/resources/media/132608.rss",
+      "enabled": true
     },
     {
-      "id": "who_emro",
       "name": "WHO EMRO RSS",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://www.emro.who.int/rss-feeds.html"
+      "url": "https://www.emro.who.int/rss-feeds.html",
+      "enabled": true
     },
     {
-      "id": "saudi_moh_news",
       "name": "Saudi MOH News",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://www.moh.gov.sa/_layouts/15/moh/RssGenerator.aspx?WebSiteUrl=/Ministry/MediaCenter/News/&ListUrl=/Ministry/MediaCenter/News/Pages/&ViewName=RSSView&RssTitle=&RssDescription=&DescriptionField=BriefDesc"
+      "url": "https://www.moh.gov.sa/_layouts/15/moh/RssGenerator.aspx?WebSiteUrl=/Ministry/MediaCenter/News/&ListUrl=/Ministry/MediaCenter/News/Pages/&ViewName=RSSView&RssTitle=&RssDescription=&DescriptionField=BriefDesc",
+      "enabled": true
     },
     {
-      "id": "saudi_moh_tips",
       "name": "Saudi MOH Health Tips",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://www.moh.gov.sa/_layouts/15/moh/RssGenerator.aspx?WebSiteUrl=/HealthAwareness/EducationalContent/HealthTips/&ListUrl=/HealthAwareness/EducationalContent/HealthTips/Pages/&ViewName=RSSView&RssTitle=&RssDescription=BriefDesc"
+      "url": "https://www.moh.gov.sa/_layouts/15/moh/RssGenerator.aspx?WebSiteUrl=/HealthAwareness/EducationalContent/HealthTips/&ListUrl=/HealthAwareness/EducationalContent/HealthTips/Pages/&ViewName=RSSView&RssTitle=&RssDescription=BriefDesc",
+      "enabled": true
     },
     {
-      "id": "bahrain_moh",
       "name": "Bahrain MOH Health Info",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://www.moh.gov.bh/HealthInfo/RSS"
+      "url": "https://www.moh.gov.bh/HealthInfo/RSS",
+      "enabled": true
     },
     {
-      "id": "saudi_sfda",
       "name": "Saudi SFDA Health News",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://www.sfda.gov.sa/ar/news.xml?tags=1"
+      "url": "https://www.sfda.gov.sa/ar/news.xml?tags=1",
+      "enabled": true
     },
     {
-      "id": "cnn_arabic_health",
       "name": "CNN Arabic Health & Science",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://arabic.cnn.com/rss/sections/science-and-health.rss"
+      "url": "https://arabic.cnn.com/rss/sections/science-and-health.rss",
+      "enabled": true
     },
     {
-      "id": "sky_news_arabia_health",
       "name": "Sky News Arabia Health",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://www.skynewsarabia.com/rss/v1/section/health"
+      "url": "https://www.skynewsarabia.com/rss/v1/section/health",
+      "enabled": true
     },
     {
-      "id": "alarabiya_healthy_living",
       "name": "Al Arabiya Healthy Living",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://www.alarabiya.net/feed/rss/lifestyle/healthy-living"
+      "url": "https://www.alarabiya.net/feed/rss/lifestyle/healthy-living",
+      "enabled": true
     },
     {
-      "id": "asharq_health",
       "name": "Asharq News Health",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://asharq.com/rss/health"
+      "url": "https://asharq.com/rss/health",
+      "enabled": true
     },
     {
-      "id": "bbc_arabic_world",
       "name": "BBC Arabic World News",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://www.bbc.com/arabic/index.xml"
+      "url": "https://www.bbc.com/arabic/index.xml",
+      "enabled": true
     },
     {
-      "id": "youm7_medicine",
       "name": "Youm7 Medicine & Health",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://www.youm7.com/rss/Section?SectionID=245"
+      "url": "https://www.youm7.com/rss/Section?SectionID=245",
+      "enabled": true
     },
     {
-      "id": "ksa_moh_official",
       "name": "KSA Ministry of Health Official News",
-      "type": "rss",
-      "enabled": true,
-      "url": "https://www.moh.gov.sa/_layouts/15/listfeed.aspx?List=%7B5A0C8360-6F88-4F8A-A0A5-502C690E7F5A%7D"
-    },
+      "url": "https://www.moh.gov.sa/_layouts/15/listfeed.aspx?List=%7B5A0C8360-6F88-4F8A-A0A5-502C690E7F5A%7D",
+      "enabled": true
+    }
   ],
   "keywords": [
     "علاج بالأعشاب",
@@ -117,7 +89,5 @@
     "country": "sa",
     "category": "health",
     "deep_search_minimum": 0
-  }
-}
   }
 }

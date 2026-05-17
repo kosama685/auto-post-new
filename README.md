@@ -1,4 +1,4 @@
-# Arabic Herbal Health Blog Dashboard
+ Arabic Herbal Health Blog Dashboard
 
 A complete Python project for fetching Arabic health/herbal content from configured RSS feeds and NewsAPI, rewriting it safely into unique Arabic HTML, optimizing it for SEO, and publishing it to Blogger.
 

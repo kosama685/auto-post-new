@@ -134,6 +134,47 @@ def ensure_data_directory() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def normalize_sources_config(config: dict) -> dict:
+    if not isinstance(config, dict):
+        return DEFAULT_CONFIG.copy()
+
+    searx_instance = config.get(
+        "searx_instance",
+        config.get("default", {}).get("searx_instance", DEFAULT_SEARX),
+    )
+
+    if "sources" in config and isinstance(config["sources"], list):
+        rss_feeds = []
+        for source in config["sources"]:
+            if not isinstance(source, dict):
+                continue
+            if str(source.get("type", "")).lower() != "rss":
+                continue
+            url = source.get("url")
+            if not url:
+                continue
+            rss_feeds.append(
+                {
+                    "name": source.get("name") or source.get("id") or url,
+                    "url": url,
+                    "enabled": source.get("enabled", True),
+                }
+            )
+        return {
+            "rss_feeds": rss_feeds,
+            "keywords": config.get("keywords", []),
+            "blocked_keywords": config.get("blocked_keywords", []),
+            "searx_instance": searx_instance,
+        }
+
+    return {
+        "rss_feeds": config.get("rss_feeds", []),
+        "keywords": config.get("keywords", []),
+        "blocked_keywords": config.get("blocked_keywords", []),
+        "searx_instance": searx_instance,
+    }
+
+
 def load_sources_config() -> dict:
     ensure_data_directory()
     if SOURCES_FILE.exists():
@@ -142,13 +183,12 @@ def load_sources_config() -> dict:
             return yaml.safe_load(text) or DEFAULT_CONFIG
         return json.loads(text)
     if JSON_SOURCES_FILE.exists():
-        config = json.loads(JSON_SOURCES_FILE.read_text(encoding="utf-8"))
-        return {
-            "rss_feeds": config.get("rss_feeds", []),
-            "keywords": config.get("keywords", []),
-            "blocked_keywords": config.get("blocked_keywords", []),
-            "searx_instance": DEFAULT_SEARX,
-        }
+        try:
+            config = json.loads(JSON_SOURCES_FILE.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            LOGGER.exception("Invalid JSON in %s; using default source config", JSON_SOURCES_FILE)
+            return DEFAULT_CONFIG.copy()
+        return normalize_sources_config(config)
     save_sources_config(DEFAULT_CONFIG)
     return DEFAULT_CONFIG.copy()
 
