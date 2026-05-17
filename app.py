@@ -6,6 +6,7 @@ import logging.handlers
 import os
 import re
 import sqlite3
+import traceback
 from datetime import datetime, timedelta
 from pathlib import Path
 from threading import Lock
@@ -376,7 +377,10 @@ def fetch_rss_feed(feed_url: str, feed_name: str) -> list[dict]:
 
 def discover_who_emro_feeds(page_url: str) -> list[dict]:
     try:
-        response = requests.get(page_url, timeout=15)
+        headers = {
+            "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
+        }
+        response = requests.get(page_url, headers=headers, timeout=15)
         response.raise_for_status()
         html = response.text
         candidates = set(re.findall(r"href=[\"']([^\"']+\.(?:xml|rss)(?:\?[^\"']*)?)[\"']", html, re.I))
